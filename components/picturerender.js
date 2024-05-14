@@ -26,7 +26,7 @@ export class PictureRender extends HTMLElement {
     this.height = 144;
     const ctx = this.drawing.canvas.getContext('2d');
     ctx.fillStyle = 'rgb(240 248 208)';
-    ctx.fillRect(0, 0, 1984, 1984);
+    ctx.fillRect(0, 0, 160, 144);
   }
   draw({image, contrast, brightness, tileCount}) {
     image ??= this.image;
