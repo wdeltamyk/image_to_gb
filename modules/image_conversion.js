@@ -17,40 +17,25 @@ function imageDataToColourIndexedTiles(imageData, imageQuantizer, tiler) {
  */
 function imageToCanvas(image, canvas, fitType='fit') {
   let dx, dy, dw, dh, sx, sy, sw, sh;
-  switch (fitType) {
-    case 'fit':
-      const sAspectRatio = image.width / image.height;
-      dw = canvas.width;
-      dh = dw / sAspectRatio;
-      if (dh > canvas.height) {
-        dh = canvas.height;
-        dw = dh * sAspectRatio;
-      }
-      dx = (canvas.width - dw) / 2;
-      dy = (canvas.height - dh) / 2;
-      sx = 0;
-      sy = 0;
-      sw = image.width;
-      sh = image.height;
-      break;
-    case 'crop':
-      const dAspectRatio = canvas.width / canvas.height;
-      sw = image.width;
-      sh = sw / dAspectRatio;
-      if (sh > image.height) {
-        sh = image.height;
-        sw = sh * dAspectRatio;
-      }
-      sx = (image.width - sw) / 2;
-      sy = (image.height - sh) / 2;
-      dx = 0;
-      dy = 0;
-      dw = canvas.width;
-      dh = canvas.height;
-      break;
-  }
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
+  const aspectRatio = image.width / image.height;
+  if (fitType === 'fit') {
+    dw = canvas.width;
+    dh = dw / aspectRatio;
+    if (dh > canvas.height) {
+      dh = canvas.height;
+      dw = dh * aspectRatio;
+    }
+    dx = (canvas.width - dw) / 2;
+    dy = (canvas.height - dh) / 2;
+  } else {
+    dx = 0;
+    dy = 0;
+    dw = canvas.width;
+    dh = canvas.height;
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(image, 0, 0, image.width, image.height, dx, dy, dw, dh);
 }
 
 export {

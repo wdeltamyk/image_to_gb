@@ -226,8 +226,8 @@ function drawCanvasWithOnlyWindow(context, imageData, winTileMap, tileSet, colou
  * @param {number} gridSize
  */
 function drawGrid(context, vx, vy, gridSize) {
-  const xOffset = (vx % 8) * gridSize / 8;
-  const yOffset = (vy % 8) * gridSize / 8;
+  const xOffset = (vx % 8) * gridSize * 8;
+  const yOffset = (vy % 8) * gridSize * 8;
   const width = context.canvas.width;
   const height = context.canvas.height;
   context.clearRect(0, 0, width, height);

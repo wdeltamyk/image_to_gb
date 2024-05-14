@@ -46,38 +46,24 @@ function arrayBufferToHexString(buffer, delimiter = '', prefix = '') {
  */
 function pixelArrayToTiles(pixels, width, height) {
     if (pixels.byteLength !== width * height) {
-        return null;
+      return null;
     }
-    if (width % 8 !== 0 && height % 8 !== 0) {
-        return null;
-    }
-    const widthInTiles = width / 8;
-    const heightInTiles = height / 8;
+    const widthInTiles = Math.ceil(width / 8);
+    const heightInTiles = Math.ceil(height / 8);
     const pixelBytes = new Uint8Array(pixels);
-
-    const tiles = new TileSet((width * height) / 64);
-    for (let x = 0; x < width; x++) {
+  
+    const tiles = new TileSet(widthInTiles * heightInTiles);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
         const tileX = Math.floor(x / 8);
-        for (let y = 0; y < height; y++) {
-            const tileY = Math.floor(y / 8);
-            const tileNumber = tileY * widthInTiles + tileX;
-            const pixelIndex = x + y * width;
-            tiles.setPixel(tileNumber, x % 8, y % 8, pixelBytes[pixelIndex]);
-        }
+        const tileY = Math.floor(y / 8);
+        const tileNumber = tileY * widthInTiles + tileX;
+        const pixelIndex = x + y * width;
+        tiles.setPixel(tileNumber, x % 8, y % 8, pixelBytes[pixelIndex]);
+      }
     }
-    const gbTile = byteTileToGBTile(tiles.tiles[0]);
-    let hex = [];
-    for (const i of gbTile) {
-        let byte = i.toString(16);
-        if (byte.length < 2) {
-            byte = '0' + byte;
-        }
-        hex.push(byte);
-    }
-    //console.log(gbTile);
-    //console.log(hex.join(' '));
     return tiles;
-}
+  }
 
 const HIGH_BITS = [0, 0, 1, 1];
 const LOW_BITS = [0, 1, 0, 1];

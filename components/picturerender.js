@@ -26,62 +26,52 @@ export class PictureRender extends HTMLElement {
     this.height = 144;
     const ctx = this.drawing.canvas.getContext('2d');
     ctx.fillStyle = 'rgb(240 248 208)';
-    ctx.fillRect(0, 0, 160, 144);
+    ctx.fillRect(0, 0, 1984, 1984);
   }
   draw({image, contrast, brightness, tileCount}) {
     image ??= this.image;
     contrast ??= this.contrast ?? 1;
     brightness ??= this.brightness ?? 1;
     tileCount ??= this.tileCount ?? 360;
-    const needConvertToRawTiles =
-      image !== this.image ||
-      contrast !== this.contrast ||
-      brightness !== this.brightness;
+    const needConvertToRawTiles = image !== this.image || contrast !== this.contrast || brightness !== this.brightness;
     const needTileReduction = needConvertToRawTiles || tileCount !== this.tileCount;
     this.image = image;
     this.contrast = contrast;
     this.brightness = brightness;
-    this.tileCount = tileCount
-
+    this.tileCount = tileCount;
+  
     if (!this.image) {
       return;
     }
-    if (needConvertToRawTiles) {
-      this.image = image ?? this.image;
-      const canvas = document.createElement('canvas');
-      canvas.width = this.width;
-      canvas.height = this.height;
-      const ctx = canvas.getContext('2d');
-      const hasFilter = !!ctx.filter;
-      ctx.filter = `contrast(${this.contrast}) brightness(${this.brightness})`;
-      imageToCanvas(this.image, canvas, 'crop');
-      ctx.filter = 'none';
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-      if (!hasFilter) {
-        // polyfill for safari and other browsers that don't implement filter.
-        for (let i = 0; i < canvas.width * canvas.height; ++i) {
-          for (let j = 0; j < 3; ++j) {
-            let value = imageData.data[i * 4 + j];
-            value = Math.min(255, value * contrast + (0.5 - contrast * 0.5) * 256);
-            value = Math.min(255, value * brightness);
-            imageData.data[i * 4 + j] = value;
-          }
+  
+    const canvas = document.createElement('canvas');
+    canvas.width = this.image.width;
+    canvas.height = this.image.height;
+    const ctx = canvas.getContext('2d');
+    const hasFilter = !!ctx.filter;
+    ctx.filter = `contrast(${this.contrast}) brightness(${this.brightness})`;
+    imageToCanvas(this.image, canvas, 'fit');
+    ctx.filter = 'none';
+  
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  
+    if (!hasFilter) {
+      for (let i = 0; i < canvas.width * canvas.height; ++i) {
+        for (let j = 0; j < 3; ++j) {
+          let value = imageData.data[i * 4 + j];
+          value = Math.min(255, value * contrast + (0.5 - contrast * 0.5) * 256);
+          value = Math.min(255, value * brightness);
+          imageData.data[i * 4 + j] = value;
         }
       }
-      this.rawTiles = imageDataToColourIndexedTiles(
-        imageData,
-        ditherToColourIndex,
-        (pixels) => pixelArrayToTiles(pixels, 160, 144).tiles
-      );
     }
-    if (!needTileReduction) {
-      return;
-    }
-
-    // Make an initial centroid set by deduping the tiles and taking the first
-    // `tileCount`.
+  
+    this.rawTiles = imageDataToColourIndexedTiles(
+      imageData,
+      ditherToColourIndex,
+      (pixels) => pixelArrayToTiles(pixels, canvas.width, canvas.height).tiles
+    );
+  
     const uniqueStringTiles = new Set();
     for (const t of this.rawTiles) {
       uniqueStringTiles.add(t.toString());
@@ -92,40 +82,31 @@ export class PictureRender extends HTMLElement {
     }
     this.uniqueTileCount = uniqueTiles.length;
     const initialCentroids = uniqueTiles.slice(0, this.tileCount);
-    // if there are too few unique tiles just repeat them until there are
-    // enough. This is wasteful because I don't actually need to do k-means in
-    // this case. I just don't feel like writing code to construct a tile map.
+  
     if (initialCentroids.length < this.tileCount) {
-      const diff = this.tileCount - initialCentroids.length
+      const diff = this.tileCount - initialCentroids.length;
       for (let i = 0; i < diff; ++i) {
         initialCentroids.push(initialCentroids[i]);
       }
     }
-    if (this.tileCount === 360) {
-      // special case when no kmeans is done
-      const tileSet = new TileSet(this.tileCount);
-      for (let i = 0; i < tileCount; ++i) {
-        tileSet.setTile(i, this.rawTiles[i]);
-      }
-
-      this.tileMap = TileMap.makeFullMap(20, 18);
-      this.tileMap.tileSet = tileSet;
-      this.drawing.draw(this.tileMap, tileSet, kGreenColours, 0, 0);
-      return;
-    }
+  
     const [_, reducedTiles, assignments] = kMeans(this.rawTiles, this.tileCount, {round: true, initialCentroids});
-
-    const tileSet = new TileSet(tileCount);
-    for (let i = 0; i < tileCount; ++i) {
+  
+    const tileSet = new TileSet(this.tileCount);
+    for (let i = 0; i < this.tileCount; ++i) {
       tileSet.setTile(i, reducedTiles[i]);
     }
-    /** @type{TileMap} */
-    this.tileMap = new TileMap(20, 18, tileSet);
-    for (let i = 0; i < 360; ++i) {
+  
+    const widthInTiles = Math.ceil(this.image.width / 8);
+    const heightInTiles = Math.ceil(this.image.height / 8);
+    this.tileMap = new TileMap(widthInTiles, heightInTiles, tileSet);
+    for (let i = 0; i < this.rawTiles.length; ++i) {
       this.tileMap.setTile(i, assignments[i]);
     }
   
+    this.drawing.width = this.image.width;
+    this.drawing.height = this.image.height;
     this.drawing.draw(this.tileMap, tileSet, kGreenColours, 0, 0);
-  }
+  }  
 }
 customElements.define('picture-render', PictureRender);
