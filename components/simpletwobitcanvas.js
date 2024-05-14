@@ -53,8 +53,8 @@ export class SimpleTwoBitCanvas extends HTMLElement {
     /** @type{!HTMLCanvasElement} */
     this.grid = this.shadowRoot.getElementById('grid-canvas');
     this.gridContext = this.grid.getContext('2d');
-    this.width = parseInt(this.getAttribute('width') ?? '1984');
-    this.height = parseInt(this.getAttribute('height') ?? '1984');
+    this.width = parseInt(this.getAttribute('width') ?? '160');
+    this.height = parseInt(this.getAttribute('height') ?? '144');
 
     /** @type{!CanvasRenderingContext2D} */
     this.context = this.canvas.getContext('2d');
