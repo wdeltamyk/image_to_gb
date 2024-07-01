@@ -1,6 +1,6 @@
 # Pic To GB
 
-[demo](https://nogfbcmikeoxmaul.github.io/image_to_gb/)
+[demo](https://wdeltamyk.github.io/image_to_gb/)
 
 ## What is this?
 
