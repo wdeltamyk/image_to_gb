@@ -1,34 +1,51 @@
 # Pic To GB
 
-[demo](https://wdeltamyk.github.io/image_to_gb/)
+[Live Demo](https://wdeltamyk.github.io/image_to_gb/)
 
-## What is this?
+## Overview
 
-A tool for converting pictures into Game Boy graphics!
+Pic To GB is a sophisticated tool designed for converting images into Game Boy graphics format. This project caters to both aesthetic enthusiasts and homebrew game developers, offering a unique blend of retro styling and practical functionality.
 
-You select a picture. ~~The picture is cropped and resized to fit the Game Boy's 160x144 display~~ The picture is output at the same size that it's input in as, for no reason I also changed the initial display of the program, which instantly shrinks to the correct size, this does not impact the image in any way. It's then reduced to 4 colours, converted to tile based graphics and rendered.
+## Features
 
-You can adjust the contrast and brightness to get a better rendering then download the image or even a ROM to play on your Game Boy!
+- **Flexible Image Processing**: Converts images to Game Boy graphics while maintaining original dimensions.
+- **Color Reduction**: Implements a 4-color palette conversion, emulating the classic Game Boy aesthetic.
+- **Tile-Based Graphics**: Transforms images into tile-based formats, authentic to Game Boy architecture.
+- **Adjustable Parameters**: Fine-tune contrast and brightness for optimal rendering.
+- **Export Options**: Download processed images or generate playable Game Boy ROMs.
+- **Tile Limitation**: Option to restrict tile count, creating intentional glitch aesthetics or optimizing for hardware constraints.
 
-If you want to get even more of a taste for Game Boy graphics you can limit the number of tiles to 256 or fewer. This will "simplify" the picture and make it look glitchy and blocky.
+## Technical Specifications
 
-## Data privacy
+- **Processing**: All operations are performed client-side, ensuring data privacy and rapid processing.
+- **ROM Generation**: Creates simple, image-display ROMs compatible with both emulators and original hardware.
+- **Tile Limits**: Supports standard Game Boy (196 tiles) and Game Boy Color (256 tiles) specifications.
 
-Nothing is uploaded. Everything is done locally in the browser and the picture isn't sent to a server.
+## Developer Notes
 
-## ROM?
+This project extends the original concept to support homebrew game development. Key modifications include:
 
-You can generate a game ROM that you can play in a browser or put on a flash cart to play on original hardware. The ROM just displays the image, that's it!
+- Removal of the 160x144 pixel restriction, allowing for larger, more detailed scenes.
+- Implementation of customizable tile limits for multi-part scene development.
+- Optimized for integration with tools like GB Studio and GBSDK.
 
-## Mike's changes - the "why?"
+## Usage Guidelines
 
-I love the original program, but it's designed for gameboyifying an image for aesthetics, hence the size limit of 160x144. My changes alter the behaviour for the purpose of homebrew game development, so you can create a graphically intense scene with a lot of colours and details, then chop it up into a several files (preferably a size divisible of 8), figure out the tile limit, for example if you have 4 images making up one entire scene, limit each image to 64 tiles, and after the settings are adjusted, you can stitch the image back together with the changes, and throw this into GB Studio or use with GBSDK.
+1. For optimal performance, process large images in sections.
+2. When creating multi-part scenes, allocate tile budgets accordingly (e.g., 64 tiles per quarter for a four-part scene).
+3. Export processed images for reassembly or direct use in development environments.
 
-## Tile limits
+## Running the Application
 
-If you're making a homebrew game you're probably aware of these already, but for a standard GB game it's 196, for a GBC game it's 256, anything past that and you'll lose tiles or outright have a corrupted image/no image at all.
+- Open the HTML file directly in a web browser.
+- Alternatively, serve through a local development server (e.g., VSCode's Live Server or Python's `http.server`).
 
-## Running
+Note: Processing time may increase with larger images. Sectioning large images is recommended for efficiency.
 
-As the original, you can export as a rom, or you can just run the html file through VSCode or serve it through a cli local server like http for python.
-Note however that the bigger the image is the more sluggish it will return results, so I strongly recommend chopping an image up.
+## Data Privacy
+
+This application processes all data locally within the user's browser. No information is uploaded or transmitted to external servers.
+
+---
+
+Contributions and feedback are welcome. For any inquiries or suggestions, please open an issue on the GitHub repository.
